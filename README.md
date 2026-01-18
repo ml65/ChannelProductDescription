@@ -1,0 +1,105 @@
+# ChannelProductDescription
+
+Плагин для Shopware 6, позволяющий создавать альтернативные описания продуктов для каждого канала продаж.
+
+## Описание
+
+Плагин автоматически создает custom fields для каждого канала продаж, позволяя задавать уникальное описание продукта для каждого канала. Если для текущего канала задано описание, оно отображается вместо стандартного описания продукта.
+
+## Требования
+
+- Shopware 6.4 или выше
+- PHP 8.1 или выше
+
+## Установка
+
+1. Скопируйте плагин в директорию `custom/plugins/ChannelProductDescription`
+2. Установите зависимости через Composer:
+   ```bash
+   composer install
+   ```
+3. Установите плагин через административную панель Shopware или через CLI:
+   ```bash
+   bin/console plugin:refresh
+   bin/console plugin:install --activate ChannelProductDescription
+   ```
+
+## Использование
+
+После установки плагин автоматически:
+
+1. Создает custom field set `channel_product_description` для продуктов
+2. Создает отдельное поле для каждого существующего канала продаж
+3. При создании нового канала продаж автоматически создается соответствующее поле
+4. При удалении канала продаж соответствующее поле автоматически удаляется
+
+### Настройка описаний
+
+1. Перейдите в раздел **Каталог → Продукты**
+2. Выберите нужный продукт
+3. В разделе **Custom Fields** найдите секцию **Channel Descriptions**
+4. Для каждого канала продаж введите уникальное описание
+5. Сохраните изменения
+
+### Отображение на фронтенде
+
+На странице продукта в Storefront автоматически отображается описание для текущего канала продаж. Если описание для канала не задано, отображается стандартное описание продукта.
+
+## Структура проекта
+
+```
+ChannelProductDescription/
+├── composer.json
+├── README.md
+├── LICENSE
+├── .gitignore
+├── src/
+│   ├── ChannelProductDescription.php    # Основной класс плагина
+│   ├── Service/
+│   │   └── CustomFieldService.php       # Сервис для работы с custom fields
+│   ├── Subscriber/
+│   │   └── SalesChannelSubscriber.php   # Подписка на события каналов продаж
+│   └── Resources/
+│       ├── config/
+│       │   └── services.xml             # Конфигурация сервисов
+│       └── views/
+│           └── storefront/
+│               └── component/
+│                   └── product/
+│                       └── description.html.twig  # Шаблон для отображения описания
+└── tests/
+    └── Unit/
+        ├── Service/
+        │   └── CustomFieldServiceTest.php
+        └── Subscriber/
+            └── SalesChannelSubscriberTest.php
+```
+
+## Технические детали
+
+### Custom Fields
+
+Плагин создает custom fields с именами в формате `channel_description_{channelId}`, где `{channelId}` - это ID канала продаж.
+
+### События
+
+Плагин подписывается на следующие события:
+- `sales_channel.written` - создание или обновление канала продаж
+- `sales_channel.deleted` - удаление канала продаж
+
+### Переопределение шаблона
+
+Плагин переопределяет шаблон `@Storefront/storefront/component/product/description.html.twig` для автоматического отображения описания текущего канала.
+
+## Лицензия
+
+MIT License. См. файл [LICENSE](LICENSE) для подробной информации.
+
+## Автор
+
+MLS (C) 2026
+
+## Версия
+
+1.0.0
+

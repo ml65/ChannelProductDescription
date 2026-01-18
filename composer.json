@@ -1,0 +1,29 @@
+{
+    "name": "channel/product-description",
+    "description": "Alternative product descriptions per sales channel",
+    "version": "1.0.0",
+    "type": "shopware-platform-plugin",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Channel\\ProductDescription\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Channel\\ProductDescription\\Test\\": "tests/"
+        }
+    },
+    "extra": {
+        "shopware-plugin-class": "Channel\\ProductDescription\\ChannelProductDescription",
+        "label": {
+            "de-DE": "Produktbeschreibungen pro Verkaufskanal",
+            "en-GB": "Product descriptions per sales channel",
+            "ru-RU": "Альтернативные описания продуктов для каналов продаж"
+        }
+    },
+    "require": {
+        "shopware/core": "~6.4"
+    }
+}
+

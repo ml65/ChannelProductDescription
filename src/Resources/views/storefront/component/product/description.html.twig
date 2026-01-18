@@ -1,0 +1,16 @@
+{% sw_extends '@Storefront/storefront/component/product/description.html.twig' %}
+
+{% block component_product_description_content_text %}
+    {% set fieldName = 'channel_description_' ~ context.salesChannel.id %}
+    {% set customDescription = product.translated.customFields[fieldName] ?? null %}
+    
+    <div class="product-detail-description-text"
+         itemprop="description">
+        {% if customDescription and customDescription|trim != '' %}
+            {{ customDescription|raw }}
+        {% else %}
+            {{ product.translated.description|raw }}
+        {% endif %}
+    </div>
+{% endblock %}
+

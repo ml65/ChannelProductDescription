@@ -36,7 +36,7 @@ final class CustomFieldService
         $fieldSetId = $this->getOrCreateCustomFieldSet($context);
 
         foreach ($salesChannels as $channel) {
-            $this->createFieldForChannelWithSetId($fieldSetId, $channel->getId(), $context);
+            $this->createFieldForChannelWithSetId($fieldSetId, $channel->getId(), $channel->getName(), $context);
         }
     }
 
@@ -51,7 +51,8 @@ final class CustomFieldService
                 'config' => [
                     'label' => [
                         'de-DE' => 'Kanal-Beschreibungen',
-                        'en-GB' => 'Channel Descriptions'
+                        'en-GB' => 'Channel Descriptions',
+                        'ru-RU' => 'Описания каналов'
                     ]
                 ],
                 'relations' => [
@@ -66,12 +67,17 @@ final class CustomFieldService
         return $fieldSetId;
     }
 
-    private function createFieldForChannelWithSetId(string $fieldSetId, string $channelId, Context $context): void
+    private function createFieldForChannelWithSetId(string $fieldSetId, string $channelId, string $channelName, Context $context): void
     {
-        $channel = $this->getSalesChannel($channelId, $context);
-        $channelName = $channel ? $channel->getName() : 'Channel';
-
         $fieldName = self::FIELD_PREFIX . $channelId;
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $fieldName));
+        $existingField = $this->customFieldRepository->search($criteria, $context);
+
+        if ($existingField->count() > 0) {
+            return;
+        }
 
         $this->customFieldRepository->create([
             [
@@ -83,7 +89,8 @@ final class CustomFieldService
                     'type' => 'text',
                     'label' => [
                         'de-DE' => 'Beschreibung für ' . $channelName,
-                        'en-GB' => 'Description for ' . $channelName
+                        'en-GB' => 'Description for ' . $channelName,
+                        'ru-RU' => 'Описание для ' . $channelName
                     ],
                     'componentName' => 'sw-text-editor',
                 ]
@@ -117,7 +124,8 @@ final class CustomFieldService
                     'type' => 'text',
                     'label' => [
                         'de-DE' => 'Beschreibung für ' . $channelName,
-                        'en-GB' => 'Description for ' . $channelName
+                        'en-GB' => 'Description for ' . $channelName,
+                        'ru-RU' => 'Описание для ' . $channelName
                     ],
                     'componentName' => 'sw-text-editor',
                 ]

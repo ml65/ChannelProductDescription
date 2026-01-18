@@ -30,6 +30,10 @@ final class ChannelProductDescription extends Plugin
 
     public function uninstall(UninstallContext $uninstallContext): void
     {
+        if ($uninstallContext->keepUserData()) {
+            return;
+        }
+
         if (!$this->container->has('custom_field_set.repository')) {
             return;
         }

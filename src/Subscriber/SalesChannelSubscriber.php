@@ -20,7 +20,7 @@ final class SalesChannelSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            'sales_channel.written' => 'onSalesChannelWritten',
+            SalesChannelEvents::SALES_CHANNEL_WRITTEN => 'onSalesChannelWritten',
             SalesChannelEvents::SALES_CHANNEL_DELETED => 'onSalesChannelDeleted',
         ];
     }

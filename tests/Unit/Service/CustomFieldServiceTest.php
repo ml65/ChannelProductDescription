@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 final class CustomFieldServiceTest extends TestCase
@@ -38,7 +36,6 @@ final class CustomFieldServiceTest extends TestCase
 
     public function testCreateFieldsForAllChannelsWithEmptyChannels(): void
     {
-        $emptyCollection = new SalesChannelCollection();
         $emptySearchResult = $this->createMock(EntitySearchResult::class);
         $emptySearchResult->method('count')->willReturn(0);
 
@@ -146,6 +143,107 @@ final class CustomFieldServiceTest extends TestCase
             ->method('delete');
 
         $this->customFieldService->deleteFieldForChannel($channelId, $this->context);
+    }
+
+    public function testCreateFieldForChannelWithExistingField(): void
+    {
+        $channelId = 'test-channel-id';
+        $channelName = 'Test Channel';
+
+        $channel = $this->createMock(SalesChannelEntity::class);
+        $channel->method('getId')->willReturn($channelId);
+        $channel->method('getName')->willReturn($channelName);
+
+        $channelSearchResult = $this->createMock(EntitySearchResult::class);
+        $channelSearchResult->method('first')->willReturn($channel);
+
+        $fieldSetSearchResult = $this->createMock(EntitySearchResult::class);
+        $fieldSetSearchResult->method('count')->willReturn(1);
+        $fieldSetEntity = $this->createMock(\Shopware\Core\Framework\DataAbstractionLayer\Entity::class);
+        $fieldSetEntity->method('getId')->willReturn('field-set-id');
+        $fieldSetSearchResult->method('first')->willReturn($fieldSetEntity);
+
+        $existingFieldSearchResult = $this->createMock(EntitySearchResult::class);
+        $existingFieldSearchResult->method('count')->willReturn(1);
+
+        $this->salesChannelRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturn($channelSearchResult);
+
+        $this->customFieldSetRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturn($fieldSetSearchResult);
+
+        $this->customFieldSetRepository
+            ->expects($this->never())
+            ->method('create');
+
+        $this->customFieldRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturn($existingFieldSearchResult);
+
+        $this->customFieldRepository
+            ->expects($this->never())
+            ->method('create');
+
+        $this->customFieldService->createFieldForChannel($channelId, $this->context);
+    }
+
+    public function testCreateFieldsForAllChannelsWithExistingFields(): void
+    {
+        $channelId1 = 'channel-1';
+        $channelId2 = 'channel-2';
+        $channelName1 = 'Channel 1';
+        $channelName2 = 'Channel 2';
+
+        $channel1 = $this->createMock(SalesChannelEntity::class);
+        $channel1->method('getId')->willReturn($channelId1);
+        $channel1->method('getName')->willReturn($channelName1);
+
+        $channel2 = $this->createMock(SalesChannelEntity::class);
+        $channel2->method('getId')->willReturn($channelId2);
+        $channel2->method('getName')->willReturn($channelName2);
+
+        $channelsSearchResult = $this->createMock(EntitySearchResult::class);
+        $channelsSearchResult->method('count')->willReturn(2);
+        $channelsSearchResult->method('getIterator')->willReturn(new \ArrayIterator([$channel1, $channel2]));
+
+        $fieldSetSearchResult = $this->createMock(EntitySearchResult::class);
+        $fieldSetSearchResult->method('count')->willReturn(1);
+        $fieldSetEntity = $this->createMock(\Shopware\Core\Framework\DataAbstractionLayer\Entity::class);
+        $fieldSetEntity->method('getId')->willReturn('field-set-id');
+        $fieldSetSearchResult->method('first')->willReturn($fieldSetEntity);
+
+        $existingFieldSearchResult = $this->createMock(EntitySearchResult::class);
+        $existingFieldSearchResult->method('count')->willReturn(1);
+
+        $this->salesChannelRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturn($channelsSearchResult);
+
+        $this->customFieldSetRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturn($fieldSetSearchResult);
+
+        $this->customFieldSetRepository
+            ->expects($this->never())
+            ->method('create');
+
+        $this->customFieldRepository
+            ->expects($this->exactly(2))
+            ->method('search')
+            ->willReturn($existingFieldSearchResult);
+
+        $this->customFieldRepository
+            ->expects($this->never())
+            ->method('create');
+
+        $this->customFieldService->createFieldsForAllChannels($this->context);
     }
 }
 

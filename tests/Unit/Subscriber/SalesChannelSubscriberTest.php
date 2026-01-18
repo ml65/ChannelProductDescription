@@ -29,9 +29,9 @@ final class SalesChannelSubscriberTest extends TestCase
     {
         $events = SalesChannelSubscriber::getSubscribedEvents();
 
-        $this->assertArrayHasKey('sales_channel.written', $events);
+        $this->assertArrayHasKey(SalesChannelEvents::SALES_CHANNEL_WRITTEN, $events);
         $this->assertArrayHasKey(SalesChannelEvents::SALES_CHANNEL_DELETED, $events);
-        $this->assertEquals('onSalesChannelWritten', $events['sales_channel.written']);
+        $this->assertEquals('onSalesChannelWritten', $events[SalesChannelEvents::SALES_CHANNEL_WRITTEN]);
         $this->assertEquals('onSalesChannelDeleted', $events[SalesChannelEvents::SALES_CHANNEL_DELETED]);
     }
 
